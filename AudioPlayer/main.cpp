@@ -74,13 +74,18 @@ public:
             string name;
             getline(cin, name);
             auto song = tracks.find(name);
-            tm date = song->second.getCreationDate();
-            cout << "Now playing: " << name << endl << 
-                song->second.getDuration() / 60 << ":" << song->second.getDuration() % 60 << endl 
-                << date.tm_year << "/" << date.tm_mon + 1 << "/" << date.tm_mday << endl;
-
-            isSongPlaying = true;
-            currentTrack = &song->second;
+            auto end = tracks.end();
+            if (song == end) cout << "Song not found!\n";
+            else {
+                tm date = song->second.getCreationDate();
+                cout << "Now playing: " << name << endl << 
+                    "Duration: " << song->second.getDuration() / 60 << ":" << (song->second.getDuration() % 60) / 10 
+                    << (song->second.getDuration() % 60) % 10 << endl 
+                    << "Creation date: " << date.tm_year << "/" << date.tm_mon + 1 << "/" << date.tm_mday << endl;
+                isSongPlaying = true;
+                isSongPaused = false;
+                currentTrack = &song->second;
+            }
         }
     } 
 
@@ -98,18 +103,36 @@ public:
             songsNames.push_back(i.first);
         }
 
-        int randTrackNumber = rand() % songsNames.size();
+        int currentTrackNumber = -1;
+        if (currentTrack != nullptr) {
+            for (int i = 0; i < songsNames.size(); i++) {
+                if (currentTrack->getName() == songsNames[i]) {
+                    currentTrackNumber = i;
+                    break;
+                }
+            }
+        }
+
+        int randTrackNumber;
+
+        do {
+            randTrackNumber = rand() % songsNames.size();
+        } while (randTrackNumber == currentTrackNumber);
+        
         auto nextTrack = tracks.find(songsNames[randTrackNumber]);
         currentTrack = &nextTrack->second;
 
         cout << "Now playing: " << currentTrack->getName() << endl;
+        isSongPlaying = true;
+        isSongPaused = false;
     }
 
     void stop() {
         if (isSongPlaying || isSongPaused) {
-            delete currentTrack;
             currentTrack = nullptr;
-
+            isSongPlaying = false;
+            isSongPaused = false;
+            //delete currentTrack;
         }
     }
 
@@ -160,9 +183,6 @@ int main() {
         switch (commands[command]) {
             case Commands::PLAY: {
                 
-                // cout << "Enter the track name\n";
-                // string trackName;
-                // getline(cin, trackName);
                 player.play();
                 break;
             }
