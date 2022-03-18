@@ -28,22 +28,7 @@ bool isPhoneNumber(string value) {
     return false;
 }
 
-class PhoneNumber {
-    const string code = "+7";
-    char phone[10] = {};
 
-
-public:
-    void set(const char* value) {
-        for (int i = 0; i < 10; i++) {
-            phone[i] = value[i];
-        }
-    }
-
-    string get() {
-        return code + phone;
-    }
-};
 
 
 class Address {
